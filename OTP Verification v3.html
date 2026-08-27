@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OTP Verification v3</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet"
+    >
+
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #080b0d;
+    --card: #111519;
+    --card-2: #151a1f;
+
+    --text: #f4f7f8;
+    --muted: #747d84;
+
+    --border: rgba(255, 255, 255, 0.12);
+
+    --green: #2ff0b0;
+    --green-dark: #0f8f6d;
+
+    --blue: #a8c8ff;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(32, 52, 58, 0.25),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 20% 80%,
+            rgba(19, 65, 54, 0.08),
+            transparent 30%
+        ),
+        #080b0d;
+
+    color: var(--text);
+
+    font-family: "Inter", sans-serif;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================
+   PAGE
+========================================= */
+
+.page {
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 70px 20px 50px;
+}
+
+
+/* =========================================
+   HEADING
+========================================= */
+
+.heading {
+    text-align: center;
+
+    margin-bottom: 15px;
+
+    animation: headingIn 0.8s ease both;
+}
+
+.component-label {
+    font-family: "Space Mono", monospace;
+
+    font-size: 10px;
+
+    letter-spacing: 4px;
+
+    color: #6e777d;
+
+    margin-bottom: 8px;
+}
+
+h1 {
+    font-size: 27px;
+
+    font-weight: 600;
+
+    letter-spacing: -1.2px;
+}
+
+h1 span {
+    font-size: 15px;
+
+    vertical-align: middle;
+
+    margin-left: 2px;
+
+    color: #dce1e5;
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.otp-card {
+    position: relative;
+
+    width: min(430px, 100%);
+
+    min-height: 505px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.025),
+            rgba(255,255,255,0.005)
+        ),
+        var(--card);
+
+    border-radius: 31px;
+
+    border: 1px solid rgba(255,255,255,0.045);
+
+    box-shadow:
+        0 40px 100px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.025);
+
+    overflow: hidden;
+
+    animation: cardIn 0.9s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.otp-card::before {
+    content: "";
+
+    position: absolute;
+
+    width: 280px;
+    height: 280px;
+
+    left: 50%;
+    top: 40%;
+
+    transform: translate(-50%, -50%);
+
+    background: rgba(31, 240, 177, 0.025);
+
+    filter: blur(60px);
+
+    pointer-events: none;
+}
+
+.card-handle {
+    position: absolute;
+
+    top: 14px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 42px;
+    height: 3px;
+
+    border-radius: 10px;
+
+    background: #454a4e;
+}
+
+.card-content {
+    position: relative;
+
+    z-index: 2;
+
+    padding: 39px 34px 28px;
+
+    text-align: center;
+}
+
+.card-content h2 {
+    font-size: 24px;
+
+    line-height: 1.2;
+
+    font-weight: 600;
+
+    letter-spacing: -0.8px;
+
+    margin-bottom: 13px;
+}
+
+.description {
+    color: #737b82;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+.description strong {
+    color: #a1a8ad;
+
+    font-weight: 500;
+}
+
+
+/* =========================================
+   OTP STAGE
+========================================= */
+
+.otp-stage {
+    position: relative;
+
+    width: 230px;
+    height: 230px;
+
+    margin: 19px auto 2px;
+
+    user-select: none;
+
+    transition:
+        transform 0.5s ease,
+        opacity 0.5s ease;
+}
+
+
+/* Circular orbit */
+
+.orbit {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255,255,255,0.16);
+
+    pointer-events: none;
+}
+
+.orbit-one {
+    width: 143px;
+    height: 143px;
+}
+
+.orbit-two {
+    width: 154px;
+    height: 154px;
+
+    opacity: 0.12;
+
+    border-style: dashed;
+
+    animation: orbitPulse 3s ease-in-out infinite;
+}
+
+
+/* Center */
+
+.orbit-center {
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.orbit-center span {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #e8eeee;
+
+    box-shadow:
+        0 0 8px rgba(255,255,255,0.35);
+}
+
+
+/* =========================================
+   OTP NODES
+========================================= */
+
+.otp-node {
+    position: absolute;
+
+    width: 64px;
+    height: 64px;
+
+    border-radius: 15px;
+
+    border: 1.5px solid rgba(220,225,230,0.75);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.07),
+            rgba(255,255,255,0.025)
+        );
+
+    color: #f3f5f6;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: "Space Mono", monospace;
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.07),
+        0 8px 25px rgba(0,0,0,0.25);
+
+    transition:
+        transform 0.45s cubic-bezier(.2,.8,.2,1),
+        border-color 0.35s ease,
+        background 0.35s ease,
+        box-shadow 0.35s ease,
+        color 0.35s ease;
+}
+
+.otp-node:hover {
+    transform: scale(1.06);
+
+    border-color: rgba(255,255,255,0.95);
+
+    background: rgba(255,255,255,0.09);
+}
+
+.otp-node:active {
+    transform: scale(0.94);
+}
+
+
+/* Position */
+
+.node-top {
+    left: 50%;
+    top: 0;
+
+    transform: translateX(-50%);
+}
+
+.node-right {
+    right: 0;
+    top: 50%;
+
+    transform: translateY(-50%);
+}
+
+.node-bottom {
+    left: 50%;
+    bottom: 0;
+
+    transform: translateX(-50%);
+}
+
+.node-left {
+    left: 0;
+    top: 50%;
+
+    transform: translateY(-50%);
+}
+
+
+/* Keep hover movement */
+
+.node-top:hover {
+    transform: translateX(-50%) scale(1.06);
+}
+
+.node-right:hover {
+    transform: translateY(-50%) scale(1.06);
+}
+
+.node-bottom:hover {
+    transform: translateX(-50%) scale(1.06);
+}
+
+.node-left:hover {
+    transform: translateY(-50%) scale(1.06);
+}
+
+
+/* Digit */
+
+.otp-node span {
+    transition:
+        transform 0.35s ease,
+        opacity 0.35s ease;
+}
+
+
+/* =========================================
+   OTP ACTIVE
+========================================= */
+
+.otp-node.active {
+    border-color: var(--green);
+
+    color: var(--green);
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(47,240,176,0.12),
+            rgba(47,240,176,0.025)
+        );
+
+    box-shadow:
+        0 0 0 1px rgba(47,240,176,0.08),
+        0 0 25px rgba(47,240,176,0.12),
+        inset 0 0 25px rgba(47,240,176,0.04);
+}
+
+.otp-node.active span {
+    transform: scale(1.08);
+}
+
+
+/* =========================================
+   HIDDEN INPUT
+========================================= */
+
+#otpInput {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    width: 1px;
+    height: 1px;
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+.status {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    height: 18px;
+
+    margin-top: -2px;
+
+    opacity: 0.75;
+
+    font-size: 10px;
+
+    color: #6d767d;
+
+    transition:
+        color 0.35s ease,
+        opacity 0.35s ease;
+}
+
+.status-dot {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #657078;
+
+    box-shadow: 0 0 8px rgba(100,110,118,0.4);
+}
+
+.status.success {
+    color: var(--green);
+
+    opacity: 1;
+}
+
+.status.success .status-dot {
+    background: var(--green);
+
+    box-shadow:
+        0 0 10px rgba(47,240,176,0.8);
+}
+
+.status.error {
+    color: #ff7c7c;
+
+    opacity: 1;
+}
+
+.status.error .status-dot {
+    background: #ff6c6c;
+
+    box-shadow:
+        0 0 10px rgba(255,80,80,0.65);
+}
+
+
+/* =========================================
+   RESEND
+========================================= */
+
+.resend {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    margin-top: 19px;
+
+    font-size: 11px;
+
+    color: #6f777d;
+}
+
+.resend button {
+    border: 0;
+
+    background: transparent;
+
+    color: #a1a8ad;
+
+    font: inherit;
+
+    cursor: default;
+}
+
+.resend button:not(:disabled) {
+    cursor: pointer;
+
+    color: #dce2e5;
+
+    text-decoration: underline;
+}
+
+.resend button:not(:disabled):hover {
+    color: var(--green);
+}
+
+
+/* =========================================
+   VERIFY BUTTON
+========================================= */
+
+.verify-btn {
+    position: relative;
+
+    width: 100%;
+
+    height: 48px;
+
+    margin-top: 18px;
+
+    border: 1px solid rgba(47,240,176,0.25);
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(47,240,176,0.15),
+            rgba(47,240,176,0.07)
+        );
+
+    color: var(--green);
+
+    font-family: "Inter", sans-serif;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.3s ease,
+        background 0.3s ease,
+        box-shadow 0.3s ease,
+        opacity 0.3s ease;
+}
+
+.verify-btn::before {
+    content: "";
+
+    position: absolute;
+
+    width: 100px;
+    height: 100px;
+
+    top: -60px;
+    left: -80px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.1);
+
+    filter: blur(20px);
+
+    transition: left 0.6s ease;
+}
+
+.verify-btn:hover::before {
+    left: 100%;
+}
+
+.verify-btn:hover {
+    border-color: rgba(47,240,176,0.5);
+
+    box-shadow:
+        0 10px 35px rgba(47,240,176,0.08);
+
+    transform: translateY(-1px);
+}
+
+.verify-btn:active {
+    transform: scale(0.98);
+}
+
+.verify-btn.disabled {
+    opacity: 0.4;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* Loading */
+
+.btn-loader {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 18px;
+    height: 18px;
+
+    transform: translate(-50%, -50%);
+
+    border: 2px solid rgba(47,240,176,0.2);
+
+    border-top-color: var(--green);
+
+    border-radius: 50%;
+
+    opacity: 0;
+
+    animation: spin 0.7s linear infinite;
+}
+
+
+/* Check */
+
+.btn-check {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0);
+
+    font-size: 21px;
+
+    opacity: 0;
+
+    color: #07100d;
+}
+
+
+/* Loading state */
+
+.verify-btn.loading .btn-text {
+    opacity: 0;
+}
+
+.verify-btn.loading .btn-loader {
+    opacity: 1;
+}
+
+
+/* Success state */
+
+.verify-btn.success {
+    background: var(--green);
+
+    border-color: var(--green);
+
+    color: #07100d;
+
+    box-shadow:
+        0 10px 40px rgba(47,240,176,0.18);
+}
+
+.verify-btn.success .btn-text {
+    opacity: 0;
+}
+
+.verify-btn.success .btn-check {
+    opacity: 1;
+
+    transform:
+        translate(-50%, -50%)
+        scale(1);
+
+    transition:
+        transform 0.45s cubic-bezier(.2,1.5,.4,1),
+        opacity 0.25s ease;
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+.reset-btn {
+    display: none;
+
+    margin: 13px auto 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #747d83;
+
+    font-size: 10px;
+
+    cursor: pointer;
+}
+
+.reset-btn:hover {
+    color: #dce1e4;
+}
+
+.reset-btn.show {
+    display: block;
+
+    animation: fadeUp 0.4s ease both;
+}
+
+
+/* =========================================
+   BOTTOM NOTE
+========================================= */
+
+.bottom-note {
+    max-width: 430px;
+
+    margin-top: 17px;
+
+    color: #5e666c;
+
+    font-size: 9px;
+
+    line-height: 1.6;
+
+    text-align: center;
+
+    animation: fadeUp 1s 0.5s ease both;
+}
+
+.bottom-note span {
+    color: #929a9f;
+}
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+.toast {
+    position: fixed;
+
+    left: 50%;
+    bottom: 25px;
+
+    transform:
+        translateX(-50%)
+        translateY(30px);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    min-width: 225px;
+
+    padding: 12px 15px;
+
+    border-radius: 14px;
+
+    background: rgba(20,25,29,0.92);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,0.45);
+
+    backdrop-filter: blur(15px);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.35s ease,
+        transform 0.35s ease;
+
+    z-index: 100;
+}
+
+.toast.show {
+    opacity: 1;
+
+    transform:
+        translateX(-50%)
+        translateY(0);
+}
+
+.toast-icon {
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(47,240,176,0.12);
+
+    color: var(--green);
+
+    font-size: 14px;
+}
+
+.toast strong {
+    display: block;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    color: #e7ecee;
+}
+
+.toast small {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    color: #747d83;
+}
+
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes headingIn {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cardIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform:
+            translate(-50%, -50%)
+            rotate(360deg);
+    }
+}
+
+@keyframes orbitPulse {
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%)
+            scale(0.98);
+
+        opacity: 0.1;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%)
+            scale(1.04);
+
+        opacity: 0.22;
+    }
+}
+
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-7px);
+    }
+
+    40% {
+        transform: translateX(7px);
+    }
+
+    60% {
+        transform: translateX(-5px);
+    }
+
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+.shake {
+    animation: shake 0.45s ease;
+}
+
+@keyframes successPop {
+    0% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.035);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.success-pop {
+    animation: successPop 0.5s ease;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 500px) {
+
+    .page {
+        padding:
+            45px 13px 35px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .otp-card {
+        border-radius: 27px;
+
+        min-height: 500px;
+    }
+
+    .card-content {
+        padding:
+            36px 23px 25px;
+    }
+
+    .card-content h2 {
+        font-size: 22px;
+    }
+
+    .description {
+        font-size: 11px;
+    }
+
+    .otp-stage {
+        transform: scale(0.92);
+
+        margin-top: 14px;
+    }
+
+    .verify-btn {
+        height: 46px;
+    }
+}
+
+
+@media (max-height: 650px) {
+
+    .page {
+        padding-top: 25px;
+        padding-bottom: 25px;
+    }
+
+    .otp-stage {
+        margin-top: 10px;
+
+        transform: scale(0.82);
+    }
+
+    .status {
+        margin-top: -30px;
+    }
+
+    .resend {
+        margin-top: 8px;
+    }
+
+    .verify-btn {
+        margin-top: 10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+    <main class="page">
+
+        <!-- Heading -->
+        <section class="heading">
+            <div class="component-label">COMPONENT 69</div>
+
+            <h1>
+                OTP Verification
+                <span>v3</span>
+            </h1>
+        </section>
+
+
+        <!-- Main Card -->
+        <section class="otp-card" id="otpCard">
+
+            <div class="card-handle"></div>
+
+            <div class="card-content">
+
+                <h2 id="title">
+                    Verify your number
+                </h2>
+
+                <p class="description">
+                    Enter the 4-digit code we sent to
+                    <strong>+1 415 ••• 0142.</strong>
+                </p>
+
+
+                <!-- OTP Orbit -->
+                <div class="otp-stage" id="otpStage">
+
+                    <div class="orbit orbit-one"></div>
+
+                    <div class="orbit orbit-two"></div>
+
+
+                    <!-- Center -->
+                    <div class="orbit-center" id="orbitCenter">
+                        <span></span>
+                    </div>
+
+
+                    <!-- OTP Nodes -->
+                    <button
+                        class="otp-node node-top"
+                        data-index="0"
+                        aria-label="OTP digit 1"
+                    >
+                        <span>7</span>
+                    </button>
+
+                    <button
+                        class="otp-node node-right"
+                        data-index="1"
+                        aria-label="OTP digit 2"
+                    >
+                        <span>1</span>
+                    </button>
+
+                    <button
+                        class="otp-node node-bottom"
+                        data-index="2"
+                        aria-label="OTP digit 3"
+                    >
+                        <span>9</span>
+                    </button>
+
+                    <button
+                        class="otp-node node-left"
+                        data-index="3"
+                        aria-label="OTP digit 4"
+                    >
+                        <span>4</span>
+                    </button>
+
+                </div>
+
+
+                <!-- Hidden Real OTP Input -->
+                <input
+                    type="text"
+                    id="otpInput"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="4"
+                    aria-label="Enter OTP"
+                >
+
+
+                <!-- Status -->
+                <div class="status" id="status">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Waiting for OTP</span>
+                </div>
+
+
+                <!-- Resend -->
+                <div class="resend">
+                    <span>Didn't receive the code?</span>
+
+                    <button id="resendBtn" disabled>
+                        Resend in <span id="timer">25</span>s
+                    </button>
+                </div>
+
+
+                <!-- Verify -->
+                <button
+                    class="verify-btn"
+                    id="verifyBtn"
+                    type="button"
+                >
+                    <span class="btn-text">Verify OTP</span>
+
+                    <span class="btn-loader"></span>
+
+                    <span class="btn-check">✓</span>
+                </button>
+
+
+                <!-- Reset -->
+                <button
+                    class="reset-btn"
+                    id="resetBtn"
+                    type="button"
+                >
+                    Enter another code
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Bottom Note -->
+        <p class="bottom-note">
+            Tip: install, select the SMS suggestion —
+            <span>4719</span> is the good camera.
+        </p>
+
+    </main>
+
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">✓</div>
+
+        <div>
+            <strong>OTP detected</strong>
+            <small>Code automatically filled</small>
+        </div>
+    </div>
+
+
+    <script>
+        /* =========================================================
+   OTP VERIFICATION v3
+   Pure JavaScript
+========================================================= */
+
+const CORRECT_OTP = "4719";
+
+let currentOTP = "";
+let timerValue = 25;
+let timerInterval = null;
+let isVerified = false;
+let isLoading = false;
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const otpInput = document.getElementById("otpInput");
+
+const otpCard = document.getElementById("otpCard");
+
+const otpStage = document.getElementById("otpStage");
+
+const otpNodes = [
+    document.querySelector(".node-top"),
+    document.querySelector(".node-right"),
+    document.querySelector(".node-bottom"),
+    document.querySelector(".node-left")
+];
+
+const title = document.getElementById("title");
+
+const status = document.getElementById("status");
+
+const statusText = document.getElementById("statusText");
+
+const verifyBtn = document.getElementById("verifyBtn");
+
+const resetBtn = document.getElementById("resetBtn");
+
+const resendBtn = document.getElementById("resendBtn");
+
+const timer = document.getElementById("timer");
+
+const toast = document.getElementById("toast");
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    startResendTimer();
+
+    setupNodeClicks();
+
+    setupKeyboardInput();
+
+    animateOTP();
+
+});
+
+
+/* =========================================================
+   OTP NODE CLICK
+========================================================= */
+
+function setupNodeClicks() {
+
+    otpNodes.forEach((node, index) => {
+
+        node.addEventListener("click", () => {
+
+            if (isVerified || isLoading) {
+                return;
+            }
+
+            /*
+                Clicking a node adds its digit.
+            */
+
+            const digit = node
+                .querySelector("span")
+                .textContent;
+
+            addDigit(digit);
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   KEYBOARD INPUT
+========================================================= */
+
+function setupKeyboardInput() {
+
+    /*
+        Clicking anywhere on OTP stage
+        focuses the hidden input.
+    */
+
+    otpStage.addEventListener("click", () => {
+
+        if (!isVerified) {
+            otpInput.focus();
+        }
+
+    });
+
+
+    /*
+        Keyboard / mobile OTP input.
+    */
+
+    otpInput.addEventListener("input", (event) => {
+
+        let value = event.target.value
+            .replace(/\D/g, "")
+            .slice(0, 4);
+
+        currentOTP = value;
+
+        otpInput.value = value;
+
+        updateNodesFromInput();
+
+        if (currentOTP.length === 4) {
+
+            statusText.textContent =
+                "Code ready to verify";
+
+        } else {
+
+            statusText.textContent =
+                "Waiting for OTP";
+
+        }
+
+    });
+
+
+    /*
+        Keyboard shortcut.
+    */
+
+    document.addEventListener("keydown", (event) => {
+
+        if (isVerified || isLoading) {
+            return;
+        }
+
+        /*
+            Numeric keyboard.
+        */
+
+        if (/^[0-9]$/.test(event.key)) {
+
+            event.preventDefault();
+
+            addDigit(event.key);
+
+        }
+
+
+        /*
+            Backspace.
+        */
+
+        if (event.key === "Backspace") {
+
+            event.preventDefault();
+
+            removeDigit();
+
+        }
+
+
+        /*
+            Enter.
+        */
+
+        if (event.key === "Enter") {
+
+            verifyOTP();
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   ADD DIGIT
+========================================================= */
+
+function addDigit(digit) {
+
+    if (currentOTP.length >= 4) {
+        return;
+    }
+
+    currentOTP += digit;
+
+    otpInput.value = currentOTP;
+
+    updateNodesFromInput();
+
+    status.classList.remove("error");
+
+    statusText.textContent =
+        currentOTP.length === 4
+            ? "Code ready to verify"
+            : "Waiting for OTP";
+
+}
+
+
+/* =========================================================
+   REMOVE DIGIT
+========================================================= */
+
+function removeDigit() {
+
+    if (currentOTP.length === 0) {
+        return;
+    }
+
+    currentOTP =
+        currentOTP.slice(0, -1);
+
+    otpInput.value = currentOTP;
+
+    updateNodesFromInput();
+
+    statusText.textContent =
+        "Waiting for OTP";
+
+}
+
+
+/* =========================================================
+   UPDATE NODES
+========================================================= */
+
+function updateNodesFromInput() {
+
+    otpNodes.forEach((node, index) => {
+
+        const span =
+            node.querySelector("span");
+
+        if (currentOTP[index]) {
+
+            span.textContent =
+                currentOTP[index];
+
+            node.classList.add("active");
+
+        } else {
+
+            /*
+                Restore the animated
+                demo digits.
+            */
+
+            span.textContent =
+                getDefaultDigit(index);
+
+            node.classList.remove("active");
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   DEFAULT DIGITS
+========================================================= */
+
+function getDefaultDigit(index) {
+
+    const defaults = [
+        "7",
+        "1",
+        "9",
+        "4"
+    ];
+
+    return defaults[index];
+
+}
+
+
+/* =========================================================
+   VERIFY BUTTON
+========================================================= */
+
+verifyBtn.addEventListener("click", () => {
+
+    verifyOTP();
+
+});
+
+
+/* =========================================================
+   VERIFY OTP
+========================================================= */
+
+function verifyOTP() {
+
+    if (isLoading || isVerified) {
+        return;
+    }
+
+
+    /*
+        Empty OTP.
+    */
+
+    if (currentOTP.length !== 4) {
+
+        showError("Enter all 4 digits");
+
+        otpInput.focus();
+
+        return;
+
+    }
+
+
+    /*
+        Start loading.
+    */
+
+    isLoading = true;
+
+    verifyBtn.classList.add("loading");
+
+    verifyBtn.classList.remove("disabled");
+
+    statusText.textContent =
+        "Checking verification code";
+
+
+    /*
+        Simulate real server request.
+    */
+
+    setTimeout(() => {
+
+        if (currentOTP === CORRECT_OTP) {
+
+            verificationSuccess();
+
+        } else {
+
+            verificationFailed();
+
+        }
+
+    }, 850);
+
+}
+
+
+/* =========================================================
+   SUCCESS
+========================================================= */
+
+function verificationSuccess() {
+
+    isLoading = false;
+
+    isVerified = true;
+
+    verifyBtn.classList.remove("loading");
+
+    verifyBtn.classList.add("success");
+
+    otpCard.classList.add("success-pop");
+
+    status.classList.remove("error");
+
+    status.classList.add("success");
+
+    statusText.textContent =
+        "Verified successfully";
+
+    title.textContent =
+        "Number verified";
+
+    /*
+        All OTP nodes become green.
+    */
+
+    otpNodes.forEach(node => {
+
+        node.classList.add("active");
+
+    });
+
+
+    /*
+        Disable resend.
+    */
+
+    resendBtn.disabled = true;
+
+
+    /*
+        Show reset button.
+    */
+
+    resetBtn.classList.add("show");
+
+
+    /*
+        Small success animation.
+    */
+
+    createParticles();
+
+
+    /*
+        Remove animation class later.
+    */
+
+    setTimeout(() => {
+
+        otpCard.classList.remove("success-pop");
+
+    }, 600);
+
+}
+
+
+/* =========================================================
+   FAILED VERIFICATION
+========================================================= */
+
+function verificationFailed() {
+
+    isLoading = false;
+
+    verifyBtn.classList.remove("loading");
+
+    status.classList.add("error");
+
+    statusText.textContent =
+        "Invalid verification code";
+
+    otpCard.classList.remove("shake");
+
+    /*
+        Force browser reflow
+        so shake animation restarts.
+    */
+
+    void otpCard.offsetWidth;
+
+    otpCard.classList.add("shake");
+
+    setTimeout(() => {
+
+        otpCard.classList.remove("shake");
+
+    }, 500);
+
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function showError(message) {
+
+    status.classList.add("error");
+
+    statusText.textContent = message;
+
+    otpCard.classList.remove("shake");
+
+    void otpCard.offsetWidth;
+
+    otpCard.classList.add("shake");
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+resetBtn.addEventListener("click", () => {
+
+    resetVerification();
+
+});
+
+
+function resetVerification() {
+
+    isVerified = false;
+
+    isLoading = false;
+
+    currentOTP = "";
+
+    otpInput.value = "";
+
+    title.textContent =
+        "Verify your number";
+
+    status.classList.remove(
+        "success",
+        "error"
+    );
+
+    statusText.textContent =
+        "Waiting for OTP";
+
+
+    verifyBtn.classList.remove(
+        "success",
+        "loading",
+        "disabled"
+    );
+
+
+    resetBtn.classList.remove("show");
+
+
+    otpNodes.forEach(node => {
+
+        node.classList.remove("active");
+
+    });
+
+
+    /*
+        Restore default animated digits.
+    */
+
+    updateNodesFromInput();
+
+
+    otpInput.focus();
+
+}
+
+
+/* =========================================================
+   RESEND TIMER
+========================================================= */
+
+function startResendTimer() {
+
+    clearInterval(timerInterval);
+
+    timerValue = 25;
+
+    timer.textContent = timerValue;
+
+    resendBtn.disabled = true;
+
+
+    timerInterval = setInterval(() => {
+
+        timerValue--;
+
+        timer.textContent = timerValue;
+
+
+        if (timerValue <= 0) {
+
+            clearInterval(timerInterval);
+
+            resendBtn.disabled = false;
+
+            resendBtn.innerHTML =
+                "Resend code";
+
+        }
+
+    }, 1000);
+
+}
+
+
+/* =========================================================
+   RESEND
+========================================================= */
+
+resendBtn.addEventListener("click", () => {
+
+    if (resendBtn.disabled) {
+        return;
+    }
+
+
+    /*
+        Generate a new visual OTP.
+        In a real backend this would be
+        sent through SMS.
+    */
+
+    showToast(
+        "New OTP sent",
+        "Check your phone for the code"
+    );
+
+
+    resendBtn.innerHTML =
+        `Resend in <span id="timer">25</span>s`;
+
+
+    /*
+        Reconnect timer element because
+        innerHTML created a new element.
+    */
+
+    window.timer =
+        document.getElementById("timer");
+
+    startResendTimer();
+
+});
+
+
+/* =========================================================
+   AUTOMATIC OTP DEMO
+========================================================= */
+
+function simulateSMSOTP() {
+
+    /*
+        This simulates an SMS arriving.
+
+        Real app:
+        Backend sends OTP to user's phone.
+    */
+
+    const demoOTP = CORRECT_OTP;
+
+    showToast(
+        "OTP detected",
+        "Code automatically filled"
+    );
+
+
+    /*
+        Fill one digit at a time
+        to make the animation realistic.
+    */
+
+    let index = 0;
+
+    const autoFill = setInterval(() => {
+
+        if (index >= demoOTP.length) {
+
+            clearInterval(autoFill);
+
+            setTimeout(() => {
+
+                verifyOTP();
+
+            }, 350);
+
+            return;
+        }
+
+        addDigit(demoOTP[index]);
+
+        index++;
+
+    }, 180);
+
+}
+
+
+/* =========================================================
+   DEMO ANIMATION
+========================================================= */
+
+function animateOTP() {
+
+    /*
+        Video-like rotating
+        OTP demonstration.
+
+        Only runs while user has
+        not entered a custom OTP.
+    */
+
+    let rotation = 0;
+
+    setInterval(() => {
+
+        if (
+            currentOTP.length > 0 ||
+            isVerified ||
+            isLoading
+        ) {
+            return;
+        }
+
+
+        rotation++;
+
+        /*
+            Rotate digits around the
+            circular orbit.
+        */
+
+        const values = [
+            "7",
+            "1",
+            "9",
+            "4"
+        ];
+
+        const rotated = [
+            values[(rotation + 0) % 4],
+            values[(rotation + 1) % 4],
+            values[(rotation + 2) % 4],
+            values[(rotation + 3) % 4]
+        ];
+
+
+        otpNodes.forEach((node, index) => {
+
+            const span =
+                node.querySelector("span");
+
+            span.style.opacity = "0";
+
+            span.style.transform =
+                "scale(.7) rotate(15deg)";
+
+
+            setTimeout(() => {
+
+                span.textContent =
+                    rotated[index];
+
+                span.style.opacity = "1";
+
+                span.style.transform =
+                    "scale(1) rotate(0deg)";
+
+            }, 180);
+
+        });
+
+
+    }, 1800);
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(titleText, messageText) {
+
+    const strong =
+        toast.querySelector("strong");
+
+    const small =
+        toast.querySelector("small");
+
+
+    strong.textContent = titleText;
+
+    small.textContent = messageText;
+
+
+    toast.classList.add("show");
+
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 2800);
+
+}
+
+
+/* =========================================================
+   SUCCESS PARTICLES
+========================================================= */
+
+function createParticles() {
+
+    const particleCount = 28;
+
+    for (let i = 0; i < particleCount; i++) {
+
+        const particle =
+            document.createElement("span");
+
+        particle.style.position =
+            "fixed";
+
+        particle.style.left =
+            "50%";
+
+        particle.style.top =
+            "50%";
+
+        particle.style.width =
+            `${Math.random() * 4 + 2}px`;
+
+        particle.style.height =
+            particle.style.width;
+
+        particle.style.borderRadius =
+            "50%";
+
+        particle.style.background =
+            "#2ff0b0";
+
+        particle.style.boxShadow =
+            "0 0 12px rgba(47,240,176,.8)";
+
+        particle.style.pointerEvents =
+            "none";
+
+        particle.style.zIndex = "999";
+
+        document.body.appendChild(particle);
+
+
+        const angle =
+            Math.random() * Math.PI * 2;
+
+        const distance =
+            80 + Math.random() * 130;
+
+        const x =
+            Math.cos(angle) * distance;
+
+        const y =
+            Math.sin(angle) * distance;
+
+
+        particle.animate(
+            [
+                {
+                    transform:
+                        "translate(-50%,-50%) scale(1)",
+
+                    opacity: 1
+                },
+
+                {
+                    transform:
+                        `translate(
+                            calc(-50% + ${x}px),
+                            calc(-50% + ${y}px)
+                        )
+                        scale(0)`,
+
+                    opacity: 0
+                }
+            ],
+            {
+                duration:
+                    700 + Math.random() * 500,
+
+                easing:
+                    "cubic-bezier(.2,.8,.2,1)"
+            }
+        );
+
+
+        setTimeout(() => {
+
+            particle.remove();
+
+        }, 1300);
+
+    }
+
+}
+
+
+/* =========================================================
+   DEMO SHORTCUT
+========================================================= */
+
+/*
+    Press "O" on keyboard
+    to simulate automatic SMS OTP.
+
+    Useful when recording a reel.
+*/
+
+document.addEventListener("keydown", event => {
+
+    if (
+        event.key.toLowerCase() === "o" &&
+        !isVerified &&
+        !isLoading
+    ) {
+
+        /*
+            Clear current OTP first.
+        */
+
+        currentOTP = "";
+
+        otpInput.value = "";
+
+        updateNodesFromInput();
+
+        simulateSMSOTP();
+
+    }
+
+});
+    </script>
+
+</body>
+</html>
